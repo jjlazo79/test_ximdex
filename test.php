@@ -32,6 +32,14 @@ if (isset($argc)) {
 
 
 // Check files first
+if (!file_exists($csv_file)) {
+	echo "File " . $csv_file . " not found \n";
+	exit;
+}
+if (!file_exists($json_file)) {
+	echo "File " . $json_file . " not found \n";
+	exit;
+}
 
 
 // Get CSV data readable
