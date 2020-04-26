@@ -67,14 +67,32 @@ if ($handle) {
 	fclose($handle);
 }
 
-var_dump($csv_array_objects);
-var_dump($csv_array_objects[0]->total);
-
 
 // Get JSON data readable
+$json_string = file_get_contents($json_file);
+$json_array  = json_decode($json_string, true);
 
 
-// Calculate benefits
+// Insert benefits into objs
+$count_objects = count($csv_array_objects);
+for ($i = 0; $i < $count_objects; $i++) {
+	$sale_category = $csv_array_objects[$i]->category;
+	$json_category = $json_array['categories'];
+	if (array_key_exists($sale_category, $json_category)) {
+		$csv_array_objects[$i]->benefits = $json_category[$sale_category];
+	} else {
+		$csv_array_objects[$i]->benefits = $json_category['*'];
+	}
+	$csv_array_objects[$i]->getSubtotal();
+}
+
+var_dump($csv_array_objects);
+
 
 
 // Return benefits
+
+// $fmt = numfmt_create('es_ES', \NumberFormatter::CURRENCY);
+// $brute = "643,50€";
+// echo $brute = str_replace("€", "\xc2\xa0€", $brute);
+// var_dump($fmt->parseCurrency($brute, $curr));
