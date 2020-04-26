@@ -15,21 +15,19 @@ if (isset($argc)) {
 		switch ($file_parts['extension']) {
 			case "csv":
 				$csv_file = $argv[$i];
-				// echo "CSV file path:" . $csv_file . "\n";
 				break;
 
 			case "json":
 				$json_file = $argv[$i];
-				// echo "JSON file path:" . $json_file . "\n";
 				break;
 
-			case "": // Handle file extension for files ending in '.'
-			case NULL: // Handle no file extension
-				break;
+			case NULL: // Handle no file extension or unknown
+				echo "Unknown file extension \n";
+				exit;
 		}
 	}
 } else {
-	echo "argc and argv disabled\n";
+	echo "argc and argv disabled \n";
 }
 
 
@@ -62,7 +60,7 @@ if ($handle) {
 		$csv_array_objects[] = $csv_object;
 	}
 	if (!feof($handle)) {
-		echo "Error: unexpected fgets() fail\n";
+		echo "Error: unexpected fgets() fail \n";
 	}
 	fclose($handle);
 }
@@ -84,15 +82,10 @@ for ($i = 0; $i < $count_objects; $i++) {
 		$csv_array_objects[$i]->benefits = $json_category['*'];
 	}
 	$csv_array_objects[$i]->getSubtotal();
+	$csv_array_objects[$i]->getTotal();
 }
 
 var_dump($csv_array_objects);
 
 
-
-// Return benefits
-
-// $fmt = numfmt_create('es_ES', \NumberFormatter::CURRENCY);
-// $brute = "643,50€";
-// echo $brute = str_replace("€", "\xc2\xa0€", $brute);
-// var_dump($fmt->parseCurrency($brute, $curr));
+// Return benefits to CLI

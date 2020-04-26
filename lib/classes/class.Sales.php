@@ -5,9 +5,9 @@ namespace Ximdex_Test;
 class Sales
 {
 	protected $product;
-	public $category;
 	protected $cost;
 	protected $quantity;
+	public $category;
 	public $benefits;
 	public $subtotal;
 	public $total;
@@ -32,28 +32,85 @@ class Sales
 		return $this->subtotal;
 	}
 
-	private function parseBenefits()
+	public function getTotal()
 	{
-		$parsed_currency_plus = $this->getStringBetween($this->benefits, '+', '€');
-		$parsed_currency_minus = $this->getStringBetween($this->benefits, '-', '€');
-		$parsed_percent_plus = $this->getStringBetween($this->benefits, '+', '%');
-		$parsed_percent_minus = $this->getStringBetween($this->benefits, '-', '%');
-
-		// Sumar un porcentaje ($percent) a un precio
-		$price += ($price * $percent / 100);
-		// Restar un porcentaje ($percent) a un precio
-		$price -= ($price * $percent / 100);
-		return $output;
-	}
-
-	private function getStringBetween($string, $start, $end, $inclusive = false)
-	{
-		$string = " " . $string;
-		$ini = strpos($string, $start);
-		if ($ini == 0) return "";
-		if (!$inclusive) $ini += strlen($start);
-		$len = strpos($string, $end, $ini) - $ini;
-		if ($inclusive) $len += strlen($end);
-		return substr($string, $ini, $len);
+		// Check if have one or two operations
+		if (strpos($this->benefits, "%") && strpos($this->benefits, "€")) {
+			// Check witch one goes first
+			if (strpos($this->benefits, "%") < strpos($this->benefits, "€")) {
+				// Check if it adds or subtracts
+				if ($this->benefits[0] != "-") {
+					preg_match('/[+](.*?)%/', $this->benefits, $output_percent);
+					$total_percent = $this->subtotal * ($output_percent[1] / 100);
+					$total_percent = $this->subtotal + $total_percent;
+					$benefit1 = str_replace($output_percent[0], "", $this->benefits);
+					if ($benefit1[0] != "-") {
+						preg_match('/[+](.*?)€/', $benefit1, $output_currency);
+						$this->total = $total_percent + $output_currency[1];
+					} else {
+						preg_match('/[-](.*?)€/', $benefit1, $output_currency);
+						$this->total = $total_percent - $output_currency[1];
+					}
+				} else {
+					preg_match('/[-](.*?)%/', $this->benefits, $output_percent);
+					$total_percent = $this->subtotal * ($output_percent[1] / 100);
+					$total_percent = $this->subtotal - $total_percent;
+					$benefit1 = str_replace($output_percent[0], "", $this->benefits);
+					if ($benefit1[0] != "-") {
+						preg_match('/[+](.*?)€/', $benefit1, $output_currency);
+						$this->total = $total_percent + $output_currency[1];
+					} else {
+						preg_match('/[-](.*?)€/', $benefit1, $output_currency);
+						$this->total = $total_percent - $output_currency[1];
+					}
+				}
+			} else {
+				if ($this->benefits[0] != "-") {
+					preg_match('/[+](.*?)€/', $this->benefits, $output_currency);
+					$total_currency = $this->subtotal + $output_currency[1];
+					$benefit1 = str_replace($output_currency[0], "", $this->benefits);
+					if ($benefit1[0] != "-") {
+						preg_match('/[+](.*?)%/', $benefit1, $output_percent);
+						$total_percent = $total_currency * ($output_percent[1] / 100);
+						$this->total = $total_currency + $total_percent;
+					} else {
+						preg_match('/[-](.*?)%/', $benefit1, $output_percent);
+						$total_percent = $total_currency * ($output_percent[1] / 100);
+						$this->total = $total_currency - $total_percent;
+					}
+				} else {
+					preg_match('/[-](.*?)€/', $this->benefits, $output_currency);
+					$total_currency = $this->subtotal - $output_currency[1];
+					$benefit1 = str_replace($output_currency[0], "", $this->benefits);
+					if ($benefit1[0] != "-") {
+						preg_match('/[+](.*?)%/', $benefit1, $output_percent);
+						$total_percent = $total_currency * ($output_percent[1] / 100);
+						$this->total = $total_currency + $total_percent;
+					} else {
+						preg_match('/[-](.*?)%/', $benefit1, $output_percent);
+						$total_percent = $total_currency * ($output_percent[1] / 100);
+						$this->total = $total_currency - $total_percent;
+					}
+				}
+			}
+		} elseif (strpos($this->benefits, "%") && !strpos($this->benefits, "€")) {
+			if (!strpos($this->benefits, "-")) {
+				preg_match('/[+](.*?)%/', $this->benefits, $output_percent);
+				$total_percent = $this->subtotal * ($output_percent[1] / 100);
+				$this->total = $this->subtotal + $total_percent;
+			} else {
+				preg_match('/[-](.*?)%/', $this->benefits, $output_percent);
+				$total_percent = $this->subtotal * ($output_percent[1] / 100);
+				$this->total = $this->subtotal - $total_percent;
+			}
+		} elseif (!strpos($this->benefits, "%") && strpos($this->benefits, "€")) {
+			if (!strpos($this->benefits, "-")) {
+				preg_match('/[+](.*?)€/', $this->benefits, $output_currency);
+				$this->total = $this->subtotal + $output_currency[1];
+			} else {
+				preg_match('/[-](.*?)€/', $this->benefits, $output_currency);
+				$this->total = $this->subtotal - $output_currency[1];
+			}
+		}
 	}
 }
