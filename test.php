@@ -4,7 +4,7 @@ namespace Ximdex_Test;
 
 // USE in CLI: php test.php ventas.php precios.json
 
-include('lib/classes/class.Sales.php');
+require_once('lib/classes/class.Sales.php');
 
 // GET Arguments
 if (isset($argc)) {
