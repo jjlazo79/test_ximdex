@@ -77,15 +77,23 @@ for ($i = 0; $i < $count_objects; $i++) {
 	$sale_category = $csv_array_objects[$i]->category;
 	$json_category = $json_array['categories'];
 	if (array_key_exists($sale_category, $json_category)) {
-		$csv_array_objects[$i]->benefits = $json_category[$sale_category];
+		$csv_array_objects[$i]->benefits_sale = $json_category[$sale_category];
 	} else {
-		$csv_array_objects[$i]->benefits = $json_category['*'];
+		$csv_array_objects[$i]->benefits_sale = $json_category['*'];
 	}
 	$csv_array_objects[$i]->getSubtotal();
 	$csv_array_objects[$i]->getTotal();
-}
 
-var_dump($csv_array_objects);
+	// Save category totals and sum equals
+	if (isset($category_total[$csv_array_objects[$i]->category])) {
+		$category_total[$csv_array_objects[$i]->category] += $csv_array_objects[$i]->benefit;
+	} else {
+		$category_total[$csv_array_objects[$i]->category] = $csv_array_objects[$i]->benefit;
+	}
+}
 
 
 // Return benefits to CLI
+foreach ($category_total as $key => $value) {
+	echo $key . ": " . number_format((float) $value, 2, ".", "") . "\n\n";
+}
